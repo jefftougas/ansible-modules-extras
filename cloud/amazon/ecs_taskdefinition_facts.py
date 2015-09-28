@@ -21,7 +21,6 @@ short_description: return facts about task definitions in ecs
 description:
     - Describes or lists task definitions.
 version_added: 2.0
-author: Mark Chance(@Java1Guy)
 requirements: [ json, os, boto, botocore, boto3 ]
 options:
     details:
@@ -80,9 +79,6 @@ try:
     import json, os
     import boto
     import botocore
-    # import module snippets
-    from ansible.module_utils.basic import *
-    from ansible.module_utils.ec2 import *
     HAS_BOTO = True
 except ImportError:
     HAS_BOTO = False
