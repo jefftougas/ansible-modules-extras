@@ -21,7 +21,6 @@ short_description: list or describe clusters or their instances in ecs
 description:
     - Lists or describes clusters or cluster instances in ecs.
 version_added: "2.0"
-author: Mark Chance(@Java1Guy)
 options:
     details:
         description:
@@ -77,8 +76,6 @@ except ImportError:
 
 try:
     import boto3
-    # import module snippets
-    from ansible.module_utils.ec2 import ec2_argument_spec, get_aws_connection_info, boto3_conn
     HAS_BOTO3 = True
 except ImportError:
     HAS_BOTO3 = False
@@ -167,6 +164,7 @@ def main():
     module.exit_json(**ecs_facts_result)
 
 # import module snippets
+from ansible.module_utils.ec2 import *
 from ansible.module_utils.basic import *
 from ansible.module_utils.urls import *
 
