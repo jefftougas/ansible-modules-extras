@@ -29,6 +29,11 @@ options:
             - State whether the task definition should exist or be deleted
         required: true
         choices: ['present', 'absent']
+    increment_revision:
+        description:
+            - Set this to true to always create a new revision of the taskdefinition
+        required: false
+        default: false
     arn:
         description:
             - The arn of the task description to delete
@@ -143,6 +148,7 @@ def main():
     argument_spec = ec2_argument_spec()
     argument_spec.update(dict(
         state=dict(required=True, choices=['present', 'absent'] ),
+        increment_revision=dict(required=False, type='bool' ),
         arn=dict(required=False, type='str' ),
         family=dict(required=False, type='str' ),
         revision=dict(required=False, type='int' ),
@@ -182,7 +188,7 @@ def main():
 
     results = dict(changed=False)
     if module.params['state'] == 'present':
-        if existing and 'status' in existing and existing['status']=="ACTIVE":
+        if existing and 'status' in existing and existing['status']=="ACTIVE" and 'increment_revision' not in module.params or not module.params['increment_revision']:
             results['taskdefinition']=existing
         else:
             if not module.check_mode:
