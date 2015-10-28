@@ -201,6 +201,25 @@ class EcsServiceManager:
                     e['createdAt'] = str(e['createdAt'])
         return service
 
+    def update_service(self, service_name, cluster_name, task_definition, desired_count):
+        response = self.ecs.update_service(
+            cluster=cluster_name,
+            service=service_name,
+            desiredCount=desired_count,
+            taskDefinition=task_definition)
+        service = response['service']
+        if 'deployments' in service:
+            for d in service['deployments']:
+                if 'createdAt' in d:
+                    d['createdAt'] = str(d['createdAt'])
+                if 'updatedAt' in d:
+                    d['updatedAt'] = str(d['updatedAt'])
+        if 'events' in service:
+            for e in service['events']:
+                if 'createdAt' in e:
+                    e['createdAt'] = str(e['createdAt'])
+        return service
+
     def delete_service(self, service, cluster=None):
         return self.ecs.delete_service(cluster=cluster, service=service)
 
@@ -243,9 +262,18 @@ def main():
     results = dict(changed=False )
     if module.params['state'] == 'present':
         if existing and 'status' in existing and existing['status']=="ACTIVE":
-            del existing['deployments']
-            del existing['events']
-            results['service']=existing
+            if existing['desiredCount'] != module.params['desired_count'] or existing['taskDefinition'] != module.params['task_definition']:
+                response = service_mgr.update_service(module.params['name'],
+                    module.params['cluster'],
+                    module.params['task_definition'],
+                    module.params['desired_count'])
+                del response['deployments']
+                del response['events']
+                results['service']=response
+            else:
+                del existing['deployments']
+                del existing['events']
+                results['service']=existing
         else:
             if not module.check_mode:
                 if module.params['load_balancers'] is None:
